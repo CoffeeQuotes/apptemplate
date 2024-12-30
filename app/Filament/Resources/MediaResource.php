@@ -153,11 +153,11 @@ class MediaResource extends Resource
                                 'gallery' => 'Gallery',
                             ])
                             ->searchable(),
-                        
+
                         Forms\Components\Textarea::make('caption')
                             ->rows(2)
                             ->maxLength(500),
-                        
+
                         Forms\Components\Textarea::make('description')
                             ->rows(3)
                             ->maxLength(1000),
