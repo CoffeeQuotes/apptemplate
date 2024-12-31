@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->string('type');  // home-slider, product-gallery, event-photos, etc.
+            $table->string('template')->default('grid'); // grid, masonry, slider, etc.
+            $table->json('settings')->nullable(); // For template-specific settings
             $table->timestamps();
         });
     }

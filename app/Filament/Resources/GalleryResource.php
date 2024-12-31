@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use App\Filament\Resources\GalleryResource\RelationManagers;
 
 class GalleryResource extends Resource
 {
@@ -113,6 +114,10 @@ class GalleryResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('preview')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Gallery $record) => route('gallery.preview', $record))
+                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -125,7 +130,7 @@ class GalleryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\MediaRelationManager::class,
         ];
     }
 

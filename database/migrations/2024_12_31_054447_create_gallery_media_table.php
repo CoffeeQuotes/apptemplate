@@ -21,6 +21,13 @@ return new class extends Migration
             // Prevent duplicate associations
             $table->unique(['gallery_id', 'media_id']);
         });
+
+        // Add template column to galleries table if it doesn't exist
+        if (!Schema::hasColumn('galleries', 'template')) {
+            Schema::table('galleries', function (Blueprint $table) {
+                $table->string('template')->default('grid')->after('type');
+            });
+        }
     }
 
     /**
@@ -29,5 +36,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('gallery_media');
+        
+        // Remove template column from galleries table if it exists
+        if (Schema::hasColumn('galleries', 'template')) {
+            Schema::table('galleries', function (Blueprint $table) {
+                $table->dropColumn('template');
+            });
+        }
     }
 };
