@@ -52,7 +52,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->string('path');
             $table->foreignId('media_id')->nullable();
-            $table->integer('sort_order')->default(0);
+            $table->bigInteger('sort_order')->default(0);
             $table->boolean('is_primary')->default(false);
             $table->timestamps();
         });

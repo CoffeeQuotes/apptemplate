@@ -67,7 +67,6 @@ Route::get('/debug-product/{id}', function ($id) {
     dd([
         'product' => $product->toArray(),
         'images' => $product->images->toArray(),
-        'primary_image' => $product->primary_image,
         'storage_path' => storage_path('app/public'),
         'files' => \Illuminate\Support\Facades\Storage::disk('public')->files('products'),
         'image_urls' => $product->images->map(fn($img) => [

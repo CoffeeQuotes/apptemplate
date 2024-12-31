@@ -81,15 +81,12 @@ class ProductResource extends Resource
                                 ->image()
                                 ->imageEditor()
                                 ->columnSpanFull()
-                                ->imagePreviewHeight('100')
                                 ->loadingIndicatorPosition('left')
                                 ->panelLayout('grid')
-                                ->panelAspectRatio('16:9')
                                 ->maxSize(5120)
                                 ->removeUploadedFileButtonPosition('right')
                                 ->uploadButtonPosition('left')
                                 ->uploadProgressIndicatorPosition('left')
-                                ->extraAttributes(['class' => 'max-h-[300px] overflow-y-auto'])
                                 ->getUploadedFileNameForStorageUsing(
                                     fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
                                         ->prepend(now()->timestamp . '_'),
@@ -100,10 +97,10 @@ class ProductResource extends Resource
                                     // Delete old images first
                                     $record->images()->delete();
                                     
-                                    // Create new images
+                                    // Create new images with simple incremental sort order
                                     collect($state)->each(function ($path, $index) use ($record) {
                                         $record->images()->create([
-                                            'path' => $path,
+                                            'path' => $path,  // Filament will handle the products/ prefix
                                             'sort_order' => $index,
                                             'is_primary' => $index === 0,
                                         ]);
@@ -115,21 +112,19 @@ class ProductResource extends Resource
                                     return $record->images()
                                         ->orderBy('sort_order')
                                         ->get()
-                                                ->map(function ($image) {
-                                                    return str_replace('products/', '', $image->path);
-                                                })
+                                        ->pluck('path')
                                         ->toArray();
-                                        })
-                                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
-                                        ->helperText('Upload up to 5 product images. First image will be set as primary.')
-                                        ->downloadable()
-                                        ->openable()
-                                        ->previewable()
-                                        ->imageResizeMode('cover')
-                                        ->imageCropAspectRatio('16:9')
-                                        ->imageResizeTargetWidth('1920')
-                                        ->imageResizeTargetHeight('1080')
-                                        ->visibility('public'),
+                                })
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+                                ->helperText('Upload up to 5 product images. First image will be set as primary.')
+                                ->downloadable()
+                                ->openable()
+                                ->previewable()
+                                ->imageResizeMode('cover')
+                                ->imageCropAspectRatio('16:9')
+                                ->imageResizeTargetWidth('1920')
+                                ->imageResizeTargetHeight('1080')
+                                ->visibility('public')
                                 ])
                         ])
                         ->collapsible(),

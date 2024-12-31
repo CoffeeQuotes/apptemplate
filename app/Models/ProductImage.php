@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImage extends Model
 {
@@ -34,6 +35,11 @@ class ProductImage extends Model
                     ->where('id', '!=', $image->id)
                     ->update(['is_primary' => false]);
             }
+        });
+
+        static::deleting(function ($image) {
+            // Delete the actual file when the model is deleted
+            Storage::disk('public')->delete($image->path);
         });
     }
 } 

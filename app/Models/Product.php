@@ -77,7 +77,7 @@ class Product extends Model
             ?? $this->images()
                 ->orderBy('sort_order')
                 ->first();
-                
+            
         if (!$image) return null;
         
         // Return the full URL for the image
@@ -92,5 +92,15 @@ class Product extends Model
     public function getIsOnSaleAttribute(): bool
     {
         return $this->sale_price !== null && $this->sale_price < $this->price;
+    }
+
+    public function getDebugImagesAttribute()
+    {
+        $images = $this->images()->get();
+        \Log::info('Debug images for product ' . $this->id, [
+            'count' => $images->count(),
+            'paths' => $images->pluck('path')->toArray()
+        ]);
+        return $images;
     }
 } 
