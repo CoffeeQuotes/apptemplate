@@ -10,6 +10,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use Filament\Actions\Action;
 
 class BlogPostResource extends Resource
 {
@@ -96,11 +99,26 @@ class BlogPostResource extends Resource
                             'scheduled' => 'Scheduled',
                         ])
                         ->required()
-                        ->default('draft'),
+                        ->default('draft')
+                        ->live()
+                        ->afterStateUpdated(function ($state, $record) {
+                            if ($record && $record->exists && $record->slug) {
+                                Notification::make()
+                                    ->title('Post saved')
+                                    ->body('Preview your changes: ' . route('blog.preview', ['post' => $record->slug]))
+                                    ->actions([
+                                        \Filament\Notifications\Actions\Action::make('preview')
+                                            ->button()
+                                            ->url(route('blog.preview', ['post' => $record->slug]))
+                                            ->openUrlInNewTab()
+                                    ])
+                                    ->success()
+                                    ->send();
+                            }
+                        }),
 
                     Forms\Components\DateTimePicker::make('published_at')
-                        ->required()
-                        ->default(now()),
+                        ->required(),
                 ]),
         ]);
     }
@@ -134,6 +152,12 @@ class BlogPostResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('preview')
+                    ->label('Preview')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Model $record): string => route('blog.preview', $record->slug))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Model $record): bool => $record->slug !== null),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

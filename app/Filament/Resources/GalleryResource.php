@@ -23,37 +23,32 @@ class GalleryResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make()
+                Forms\Components\Section::make('Gallery Details')
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(function (string $state, Forms\Set $set) {
-                                $set('slug', Str::slug($state));
-                            }),
-
-                        Forms\Components\TextInput::make('slug')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true),
-
+                            ->required(),
                         Forms\Components\Select::make('type')
                             ->options([
                                 'home-slider' => 'Home Slider',
                                 'product-gallery' => 'Product Gallery',
                                 'event-photos' => 'Event Photos',
-                                'product-videos' => 'Product Videos',
-                                'general' => 'General',
                             ])
+                            ->required(),
+                        Forms\Components\Select::make('template')
+                            ->options([
+                                'grid' => 'Grid Layout',
+                                'masonry' => 'Masonry Layout',
+                                'slider' => 'Slider Layout',
+                            ])
+                            ->required(),
+                        Forms\Components\TextInput::make('slug')
                             ->required()
-                            ->searchable(),
-
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
                         Forms\Components\Textarea::make('description')
                             ->maxLength(65535)
                             ->columnSpanFull(),
-                    ])
-                    ->columns(2),
+                    ]),
 
                 Forms\Components\Section::make('Media')
                     ->schema([

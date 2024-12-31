@@ -15,43 +15,25 @@ class Setting extends Model
         'options',
         'is_public',
         'display_name',
-        'description',
+        'description'
     ];
 
     protected $casts = [
         'is_public' => 'boolean',
-        'options' => 'array',
+        'options' => 'array'
     ];
 
-    // Get Setting value with optional default
-    public static function get(string $key, $default = null)
+    public static function get($key, $default = null)
     {
-        return Cache::rememberForever("setting.{$key}", function () use ($key, $default) {
-            $setting = static::where('key', $key)->first();
-            return $setting ? $setting->parseValue() : $default;
-        });
+        $setting = static::where('key', $key)->first();
+        return $setting ? $setting->value : $default;
     }
 
-    // Parse the value based on the setting type
-    protected function parseValue()
+    public static function set($key, $value)
     {
-        return match($this->type) {
-            'boolean' => (boolean) $this->value,
-            'number' => (float) $this->value,
-            'json' => json_decode($this->value, true),
-            default => $this->value,
-        };
-    }
-
-    // Clear setting cache when updated or deleted
-    protected static function booted()
-    {
-        static::saved(function ($setting) {
-            Cache::forget("setting.{$setting->key}");
-        });
-
-        static::deleted(function ($setting) {
-            Cache::forget("setting.{$setting->key}");
-        });
+        return static::updateOrCreate(
+            ['key' => $key],
+            ['value' => $value]
+        );
     }
 }
