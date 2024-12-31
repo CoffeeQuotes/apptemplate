@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Models\Post;
+use App\Models\BlogCategory;
+use App\Models\BlogPost;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BlogController extends Controller
 {
-    // ... existing methods ...
-
-    public function category(Category $category): View
+    public function category(BlogCategory $category): View
     {
-        $posts = $category->posts()
+        $posts = BlogPost::with(['author', 'featuredImage', 'categories'])
+            ->whereHas('categories', function ($query) use ($category) {
+                $query->where('id', $category->id);
+            })
             ->published()
-            ->with(['author', 'categories', 'featuredImage'])
             ->latest('published_at')
-            ->paginate(10);
+            ->paginate(12);
 
-        $categories = Category::withCount(['posts' => function ($query) {
+        $categories = BlogCategory::withCount(['posts' => function ($query) {
             $query->published();
-        }])->orderBy('name')->get();
+        }])->get();
 
-        return view('blog.index', compact('posts', 'categories'));
+        return view('blog.index', compact('posts', 'categories', 'category'));
     }
 } 

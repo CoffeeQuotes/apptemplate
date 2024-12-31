@@ -16,7 +16,9 @@ class BlogPostController extends Controller
             ->latest('published_at')
             ->paginate(12);
 
-        $categories = BlogCategory::withCount('posts')->get();
+        $categories = BlogCategory::withCount(['posts' => function ($query) {
+            $query->published();
+        }])->get();
 
         return view('blog.index', compact('posts', 'categories'));
     }
